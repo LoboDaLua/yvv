@@ -1,4 +1,4 @@
-#!/home/lucas/Documents/yvv/.venv/bin/python3
+#!/home/lucas/Desktop/yvv/yvv-main/.venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

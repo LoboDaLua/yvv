@@ -16,6 +16,7 @@ from ..murbach.config import NOTE_NAMES
 from ..murbach.types import Event
 
 from . import controls, matrix_editor, piano_roll, score_view
+from ..paths import OUTPUT_DIR
 
 # ── Module-level state ──────────────────────────────────────────────
 
@@ -24,7 +25,7 @@ _alfa_out = None
 _beta_out = None
 _midi_file = None
 _wav_file = None
-_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "output"
+_OUTPUT_DIR = OUTPUT_DIR
 
 
 # ── Callbacks ───────────────────────────────────────────────────────
@@ -164,7 +165,7 @@ def run() -> None:
             with dpg.child_window(width=420, height=-1, border=True, tag="__left_col"):
                 dpg.add_text("Seed Matrix", color=(200, 200, 255))
                 dpg.add_spacer(height=4)
-                matrix_editor.create("__left_col")
+                matrix_editor.create("__left_col", on_status=controls.set_status)
                 dpg.add_spacer(height=10)
                 dpg.add_separator()
                 dpg.add_spacer(height=6)

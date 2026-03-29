@@ -18,6 +18,8 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+from src.paths import ROOT, OUTPUT_DIR
+
 
 def _run_headless(matrix: list[list[int]] | None = None) -> None:
     """Run the full pipeline without GUI and export MIDI + WAV."""
@@ -64,7 +66,7 @@ def _run_headless(matrix: list[list[int]] | None = None) -> None:
         print(f"  Last event: {NOTE_NAMES[last.pitch]}{last.midi_note // 12 - 1}"
               f"  dur={last.duration}")
 
-    out = _ROOT / "output"
+    out = OUTPUT_DIR
     mid = audio.events_to_midi(events, bpm=DEFAULT_BPM, ts_str=b.C)
     midi_path = audio.save_midi(mid, out / "output.mid")
     print(f"\n  MIDI → {midi_path}")

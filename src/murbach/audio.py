@@ -91,18 +91,23 @@ def save_midi(mid: mido.MidiFile, path: str | Path) -> Path:
 # =====================================================================
 
 SAMPLE_RATE = 44100
-_SOUNDFONTS_DIR = Path(__file__).resolve().parent.parent.parent / "soundfonts"
+
+
+def _get_soundfonts_dir() -> Path:
+    from ..paths import SOUNDFONTS_DIR
+    return SOUNDFONTS_DIR
 
 
 def _find_soundfont() -> Path | None:
     """Return path to the first .sf2 file found in the soundfonts dir."""
-    if not _SOUNDFONTS_DIR.is_dir():
+    sf_dir = _get_soundfonts_dir()
+    if not sf_dir.is_dir():
         return None
     # Prefer default.sf2
-    default = _SOUNDFONTS_DIR / "default.sf2"
+    default = sf_dir / "default.sf2"
     if default.exists():
         return default
-    for f in sorted(_SOUNDFONTS_DIR.glob("*.sf2")):
+    for f in sorted(sf_dir.glob("*.sf2")):
         return f
     return None
 

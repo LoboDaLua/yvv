@@ -3,7 +3,7 @@
 import pytest
 from src.murbach import alfa
 from src.murbach.utils import build_scale, d_circ
-from tests.conftest import IDENTITY_3x3, MATRIX_3x3, MATRIX_4x4, SINGULAR_3x3
+from tests.conftest import IDENTITY_3x3, MATRIX_3x3, MATRIX_4x4, MATRIX_6x6, SINGULAR_3x3
 
 
 class TestTonic:
@@ -50,8 +50,10 @@ class TestProjection:
         assert out.H[0][0] == out.T
 
     def test_freq_sums_to_n_squared(self):
-        out = alfa.process(MATRIX_4x4)
-        assert sum(out.freqH.values()) == 16  # 4x4
+        for mat in [MATRIX_3x3, MATRIX_4x4, MATRIX_6x6]:
+            out = alfa.process(mat)
+            n = len(mat)
+            assert sum(out.freqH.values()) == n * n
 
 
 class TestDeterminism:

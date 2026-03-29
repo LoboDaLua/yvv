@@ -7,7 +7,8 @@ from fractions import Fraction
 from src.murbach import alfa, beta, audio
 from src.murbach.gama import generate
 from src.murbach.config import NOTE_NAMES
-from tests.conftest import MATRIX_3x3, MATRIX_4x4
+from src.gui.matrix_editor import load_matrix_from_csv, save_matrix_to_csv
+from tests.conftest import MATRIX_3x3, MATRIX_4x4, MATRIX_6x6
 
 
 OUTPUT = Path(__file__).resolve().parent.parent / "output"
@@ -52,3 +53,59 @@ class TestFullPipeline:
                 assert a.pitch == b_.pitch
                 assert a.duration == b_.duration
                 assert a.midi_note == b_.midi_note
+
+
+class TestVariableSizeMatrix:
+    def test_6x6_pipeline(self):
+        a = alfa.process(MATRIX_6x6)
+        b = beta.process(MATRIX_6x6)
+        events = generate(a, b, horizon=2)
+        assert len(events) > 0
+        for ev in events:
+            assert ev.pitch in a.scale
+        assert events[-1].pitch == a.T
+
+    def test_2x2_pipeline(self):
+        mat = [[7, 3], [2, 5]]
+        a = alfa.process(mat)
+        b = beta.process(mat)
+        events = generate(a, b, horizon=2)
+        assert len(events) > 0
+
+    def test_8x8_pipeline(self):
+        mat = [[(i * 7 + j * 3 + 1) % 10 for j in range(8)] for i in range(8)]
+        a = alfa.process(mat)
+        b = beta.process(mat)
+        events = generate(a, b, horizon=1)
+        assert len(events) > 0
+        for ev in events:
+            assert ev.pitch in a.scale
+
+
+class TestCSVRoundTrip:
+    def test_export_import_identity(self, tmp_path):
+        for mat in [MATRIX_3x3, MATRIX_4x4, MATRIX_6x6]:
+            p = save_matrix_to_csv(mat, tmp_path / "mat.csv")
+            loaded = load_matrix_from_csv(p)
+            assert loaded == mat
+
+    def test_csv_file_contents(self, tmp_path):
+        p = save_matrix_to_csv(MATRIX_3x3, tmp_path / "test.csv")
+        text = p.read_text()
+        assert "2,7,1" in text
+        assert "5,3,8" in text
+
+    def test_pipeline_after_csv_roundtrip(self, tmp_path):
+        p = save_matrix_to_csv(MATRIX_4x4, tmp_path / "rt.csv")
+        loaded = load_matrix_from_csv(p)
+        a = alfa.process(loaded)
+        b = beta.process(loaded)
+        events = generate(a, b, horizon=2)
+        # Should produce identical results to direct processing
+        a2 = alfa.process(MATRIX_4x4)
+        b2 = beta.process(MATRIX_4x4)
+        events2 = generate(a2, b2, horizon=2)
+        assert len(events) == len(events2)
+        for e1, e2 in zip(events, events2):
+            assert e1.pitch == e2.pitch
+            assert e1.duration == e2.duration
