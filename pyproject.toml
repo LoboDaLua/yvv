@@ -1,0 +1,8 @@
+[project]
+name = "murbach-method"
+version = "1.0.0"
+description = "Método Murbach – Deterministic Algorithmic Composition System"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
